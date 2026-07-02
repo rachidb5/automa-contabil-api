@@ -1,17 +1,26 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 
-class LoginDto {
-  usuario: string;
-  senha: string;
-}
+import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  login(@Body() body: LoginDto) {
-    return this.authService.login(body.usuario, body.senha);
+  login(@Body() dto: LoginDto) {
+    return this.authService.login(dto.usuario, dto.senha);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req) {
+    return {
+      authenticated: true,
+      user: req.user,
+    };
   }
 }
